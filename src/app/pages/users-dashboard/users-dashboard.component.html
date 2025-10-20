@@ -1,0 +1,117 @@
+<div class="container py-4">
+  <!-- Header -->
+  <div class="d-flex flex-wrap align-items-center gap-3 mb-4">
+    <input
+      type="text"
+      class="form-control shadow-sm search-input"
+      placeholder="Search by name..."
+      [value]="search()"
+      (input)="onSearchDebounced($any($event.target).value)" />
+
+    <div>
+      <strong>PII filters:</strong>
+      <div class="d-inline-flex flex-wrap gap-2 ms-2">
+        @for (type of piiTypes(); track type) {
+          <div class="form-check form-check-inline">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              id="pii-{{ type }}"
+              [checked]="selectedPiiTypes().has(type)"
+              (change)="onTogglePiiType(type, $any($event.target).checked)"
+            />
+            <label class="form-check-label small" for="pii-{{ type }}">{{ type }}</label>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  @if (stats(); as s) {
+    <div class="row g-3 mb-4">
+      <div class="col-md-4 col-sm-6">
+        <div class="card border-0 shadow-sm hover-lift">
+          <div class="card-body text-center">
+            <h6 class="text-muted mb-1">Persons</h6>
+            <h4 class="mb-0 fw-semibold">{{ s.totalUsers }}</h4>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4 col-sm-6">
+        <div class="card border-0 shadow-sm hover-lift">
+          <div class="card-body text-center">
+            <h6 class="text-muted mb-1">Total PII items</h6>
+            <h4 class="mb-0 fw-semibold">{{ s.totalPiiItems }}</h4>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4 col-sm-6">
+        <div class="card border-0 shadow-sm hover-lift">
+          <div class="card-body text-center">
+            <h6 class="text-muted mb-1">Avg data sources/person</h6>
+            <h4 class="mb-0 fw-semibold">{{ s.avgDataSourcesPerUser }}</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Table -->
+  <div class="table-responsive">
+    <table class="table table-hover align-middle shadow-sm border rounded-3 overflow-hidden">
+      <thead class="table-light">
+      <tr>
+        <th class="sortable" (click)="onSort('name')">
+          Name
+          <span class="sort-icon"
+                [class.active]="sort()?.column === 'name'"
+                [class.asc]="sort()?.direction === 'asc'">⇅</span>
+        </th>
+        <th class="sortable" (click)="onSort('pii')">
+          PII Types
+          <span class="sort-icon"
+                [class.active]="sort()?.column === 'pii'"
+                [class.asc]="sort()?.direction === 'asc'">⇅</span>
+        </th>
+        <th class="text-end sortable" (click)="onSort('dataSourcesCount')">
+          Data Sources
+          <span class="sort-icon"
+                [class.active]="sort()?.column === 'dataSourcesCount'"
+                [class.asc]="sort()?.direction === 'asc'">⇅</span>
+        </th>
+        <th>Action</th>
+      </tr>
+      </thead>
+      <tbody>
+        @for (user of filtered(); track user.id) {
+          <tr>
+            <td class="fw-medium">{{ user.name }}</td>
+            <td>
+              @for (p of (user.pii | keyvalue); track p) {
+                <span>
+                  {{ p.key }}
+                  @if (!$last) {
+                    <span>, </span>
+                  }
+                </span>
+              }
+            </td>
+            <td class="text-end fw-semibold">{{ user._dataSourcesCount }}</td>
+            <td>
+              <a [routerLink]="['/user', user.id]" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                View
+              </a>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="4" class="text-center text-muted py-3">No users found</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,218 @@
+[
+    {
+        "id": "c7ac91ff.857cd",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "8ec77e74.adfb4",
+        "type": "http in",
+        "z": "c7ac91ff.857cd",
+        "name": "Users List",
+        "url": "/api/users",
+        "method": "get",
+        "upload": false,
+        "skipBodyParsing": false,
+        "swaggerDoc": "",
+        "x": 140,
+        "y": 140,
+        "wires": [
+            [
+                "301e36db.7c96fa"
+            ]
+        ]
+    },
+    {
+        "id": "6a716903.1c2948",
+        "type": "http response",
+        "z": "c7ac91ff.857cd",
+        "name": "Response",
+        "statusCode": "",
+        "headers": {},
+        "x": 1340,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "132329f0.177686",
+        "type": "function",
+        "z": "c7ac91ff.857cd",
+        "name": "Check",
+        "func": "if(context.global.userList) {\n    msg.flowCode = context.global.userList.code;\n    msg.statusCode = context.global.userList.status;\n}\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 630,
+        "y": 140,
+        "wires": [
+            [
+                "d8f88ea.ae59c7"
+            ]
+        ]
+    },
+    {
+        "id": "d8f88ea.ae59c7",
+        "type": "switch",
+        "z": "c7ac91ff.857cd",
+        "name": "",
+        "property": "flowCode",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "success",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "technical_error",
+                "vt": "str"
+            }
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 2,
+        "x": 850,
+        "y": 140,
+        "wires": [
+            [
+                "69a9c51f.26924c"
+            ],
+            [
+                "f5bd33d6.2d7dd"
+            ]
+        ]
+    },
+    {
+        "id": "f5bd33d6.2d7dd",
+        "type": "file in",
+        "z": "c7ac91ff.857cd",
+        "name": "Technical Error 500",
+        "filename": "./stubs/piis_error.json",
+        "filenameType": "str",
+        "format": "utf8",
+        "sendError": true,
+        "allProps": false,
+        "x": 1070,
+        "y": 200,
+        "wires": [
+            [
+                "6a716903.1c2948"
+            ]
+        ]
+    },
+    {
+        "id": "9358633c.bee98",
+        "type": "inject",
+        "z": "c7ac91ff.857cd",
+        "name": "Success",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "",
+        "topic": "",
+        "payload": "{\"code\":\"success\",\"status\":\"200\"}",
+        "payloadType": "str",
+        "x": 160,
+        "y": 280,
+        "wires": [
+            [
+                "8bb7dc65.3b47a"
+            ]
+        ]
+    },
+    {
+        "id": "bc047d1c.50156",
+        "type": "inject",
+        "z": "c7ac91ff.857cd",
+        "name": "Technical Error 500",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "topic": "",
+        "payload": "{\"code\":\"technical_error\",\"status\":\"500\"}",
+        "payloadType": "str",
+        "x": 190,
+        "y": 340,
+        "wires": [
+            [
+                "8bb7dc65.3b47a"
+            ]
+        ]
+    },
+    {
+        "id": "8bb7dc65.3b47a",
+        "type": "function",
+        "z": "c7ac91ff.857cd",
+        "name": "store",
+        "func": "context.global.userList = JSON.parse(msg.payload);\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 470,
+        "y": 340,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "301e36db.7c96fa",
+        "type": "delay",
+        "z": "c7ac91ff.857cd",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "0",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 360,
+        "y": 140,
+        "wires": [
+            [
+                "132329f0.177686"
+            ]
+        ]
+    },
+    {
+        "id": "69a9c51f.26924c",
+        "type": "file in",
+        "z": "c7ac91ff.857cd",
+        "name": "success",
+        "filename": "./stubs/piis.json",
+        "filenameType": "str",
+        "format": "utf8",
+        "sendError": true,
+        "allProps": false,
+        "x": 1060,
+        "y": 80,
+        "wires": [
+            [
+                "6a716903.1c2948"
+            ]
+        ]
+    }
+]
